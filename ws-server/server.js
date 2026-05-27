@@ -4,16 +4,29 @@ const server = new WebSocketServer({
   port: 8081 
 });
 
-server.on('connection', (socket) => {
-    console.log('Client connected');
+const clients = new Set();
 
-    socket.on('message', (message) => {
+
+
+server.on('connection', (socket) => {
+    clients.add(socket);
+    console.log('Client connected');
+    socket.on('message', (message, isBinary) => {
         console.log(`Received: ${message}`);
-        socket.send(`Server: ${message}`);
+        clients.forEach((client) => {
+            if (client !== socket && client.readyState === WebSocket.OPEN) {
+                client.send(message, {binary: isBinary});
+            }
+        });
     });
 
     socket.on('close', () => {
+        clients.delete(socket)
         console.log('Client disconnected');
+    });
+
+    socket.on('error', (error) => {
+        console.error(`Socket error: ${error.message}`);
     });
 });
 

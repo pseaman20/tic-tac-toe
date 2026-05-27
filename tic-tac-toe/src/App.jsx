@@ -7,22 +7,18 @@ import './App.css'
 function loadScript() {
   if(!window.isScriptLoaded){
     window.isScriptLoaded = true;
-    const ws = new WebSocket('ws://localhost:8081');
+    
+    const ws = connect()
 
-      ws.onopen = () => {
-          console.log('Connected to server');
-      };
 
       ws.onmessage = (event) => {
+          console.log(event.data);
           const messages = document.getElementById('messages');
           const newMessage = document.createElement('div');
           newMessage.textContent = `Server: ${event.data}`;
           messages.appendChild(newMessage);
       };
 
-      ws.onclose = () => {
-          console.log('Disconnected from server');
-      };
 
       document.getElementById('send').addEventListener('click', () => {
           const input = document.getElementById('message');
@@ -30,6 +26,20 @@ function loadScript() {
           input.value = '';
       });
   }
+}
+
+function connect() {
+    const ws = new WebSocket('ws://localhost:8081');
+
+    ws.onopen = () => {
+        console.log('Connected to server');
+    };
+
+    ws.onclose = () => {
+        console.log('Disconnected. Reconnecting...');
+        setTimeout(connect, 1000);
+    };
+    return ws;
 }
 
 function App() {
