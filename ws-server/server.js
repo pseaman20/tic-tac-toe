@@ -6,11 +6,18 @@ const server = new WebSocketServer({
 
 const clients = new Set();
 
+let gameState = {
+    playerTurn : -1,
+    board : [['','',''],
+             ['','',''],
+             ['','','']],
 
+}
 
 server.on('connection', (socket) => {
     clients.add(socket);
     console.log('Client connected');
+    socket.send(JSON.stringify(gameState));
     socket.on('message', (message, isBinary) => {
         console.log(`Received: ${message}`);
         clients.forEach((client) => {

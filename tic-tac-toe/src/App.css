@@ -17,6 +17,22 @@
   }
 }
 
+#board {
+  width: 100%;
+  height: 500px;
+  border: 1px solid whitesmoke;
+}
+
+.square {
+  border: 1px solid whitesmoke;
+  font-size:10rem;
+  vertical-align:auto;
+  transition: all 200ms;
+  &:hover{
+    background-color:gray;
+  }
+}
+
 .hero {
   position: relative;
 

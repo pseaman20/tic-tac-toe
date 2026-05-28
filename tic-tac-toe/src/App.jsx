@@ -1,32 +1,17 @@
-import { use, useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useEffect, useState, } from 'react'
+import { GameContext } from './game-context';
+import GameBoard from './gameBoard'
 import './App.css'
+import { useContext } from 'react';
 
-function loadScript() {
-  if(!window.isScriptLoaded){
-    window.isScriptLoaded = true;
-    
-    const ws = connect()
+  let mounted = false;
+  const initGameState = {
+        playerTurn : -1,
+        board : [[' ',' ',' '],
+                 [' ',' ',' '],
+                 [' ',' ',' ']],
 
-
-      ws.onmessage = (event) => {
-          console.log(event.data);
-          const messages = document.getElementById('messages');
-          const newMessage = document.createElement('div');
-          newMessage.textContent = `Server: ${event.data}`;
-          messages.appendChild(newMessage);
-      };
-
-
-      document.getElementById('send').addEventListener('click', () => {
-          const input = document.getElementById('message');
-          ws.send(input.value);
-          input.value = '';
-      });
-  }
-}
+    }
 
 function connect() {
     const ws = new WebSocket('ws://localhost:8081');
@@ -43,19 +28,29 @@ function connect() {
 }
 
 function App() {
-
+  const [gameState, setGameState] = useState(initGameState);
   useEffect(() =>{
-    loadScript();
+    if(mounted == false){
+      mounted = true;
+      const ws = connect();
+      
+      //should update based on gamedata received
+      ws.onmessage = (event) => {
+          console.log("from server",JSON.parse(event.data));
+          setGameState(JSON.parse(event.data));
+      };
+      console.log(ws);
+    }
     return
   },[])
+
 
   return (
     <>
       <h1>Websocket Client</h1>
-      <input type='text' id='message' placeholder='Type a message'/>
-      <button id='send'>Send</button>
+      <button id='send' onClick={() =>console.log(gameState)}>Send</button>
+      <GameBoard gameState={gameState}/>
       <div id='messages'></div>
-      
     </>
   )
 }
