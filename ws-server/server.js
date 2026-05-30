@@ -16,8 +16,9 @@ let gameState = {
 }
 
 server.on('connection', (socket) => {
+    const uid = server.clients.size;
     console.log('Client connected, sendingstate');
-    socket.send(JSON.stringify(gameState));
+    socket.send(JSON.stringify({...gameState,uid: uid}));
     socket.on('message', (data, isBinary) => {
         //only send out messages if data is changing
         if(JSON.stringify(data) !== JSON.stringify(gameState)){

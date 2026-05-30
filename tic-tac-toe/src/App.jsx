@@ -6,6 +6,7 @@ import Controller from './controller';
 
 function App() {
   const [gameState, setGameState] = useState();
+  const [uid, setUid] = useState();
   const ws = useRef(null);
   const isRemoteUpdate = useRef(false); // track whether state change came from server
 
@@ -23,6 +24,8 @@ function App() {
       //get remote update from server
       socket.onmessage = (event) => {
         const parsedData = JSON.parse(event.data);
+        //assign uid if sent
+        parsedData.uid? setUid(parsedData.uid) : null;
         console.log('from server', parsedData);
         isRemoteUpdate.current = true;  // flag: this state change came from server
         setGameState(parsedData);
@@ -61,7 +64,7 @@ function App() {
 
   return (
     <>
-      <h1>Websocket Client</h1>
+      <h1>{uid? uid : "Connecting..."}</h1>
       <GameBoard gameController={gameController} handleClick={gameController.handleClick} />
       <div id='messages'></div>
     </>

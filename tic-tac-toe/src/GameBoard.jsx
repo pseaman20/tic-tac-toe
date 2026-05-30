@@ -1,8 +1,3 @@
-import { useContext } from "react";
-import { GameContext } from "./game-context";
-import { useEffect } from "react";
-
-
 export default function GameBoard({gameController}) {
     let r = 0;
     let c = 0;
