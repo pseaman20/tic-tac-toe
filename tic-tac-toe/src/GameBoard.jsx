@@ -3,7 +3,7 @@ import { GameContext } from "./game-context";
 import { useEffect } from "react";
 
 
-export default function GameBoard({gameState}) {
+export default function GameBoard({gameController}) {
     let r = 0;
     let c = 0;
     return(
@@ -12,11 +12,14 @@ export default function GameBoard({gameState}) {
             <table id="board">
                 <tbody>
                     {
-                    gameState.board?.map((row) =>{
+                    gameController.gameState?.board?.map((row) =>{
                         c = 0;
+                        const currR = r;
                         return <tr key={r++}>
-                                {row.map((square) =>
-                                    <td className="square" id={""+r+c}key={""+(r)+(c++)}>{square}</td>
+                                {row.map((square) =>{
+                                    const currC = c;
+                                    return <td className="square" onClick={() =>gameController.handleClick(currR, currC, 'x')} id={""+r+c}key={""+(r)+(c++)}>{square}</td>
+                                }
                                 )}
                                </tr>
                     })

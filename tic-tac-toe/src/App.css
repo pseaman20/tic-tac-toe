@@ -26,7 +26,8 @@
 .square {
   border: 1px solid whitesmoke;
   font-size:10rem;
-  vertical-align:auto;
+  width: 33%;
+  height: 33%;
   transition: all 200ms;
   &:hover{
     background-color:gray;

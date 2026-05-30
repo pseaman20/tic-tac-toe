@@ -1,55 +1,68 @@
-import { useEffect, useState, } from 'react'
-import { GameContext } from './game-context';
+import { useEffect, useState, useRef } from 'react'
 import GameBoard from './gameBoard'
 import './App.css'
-import { useContext } from 'react';
+import Controller from './controller';
 
-  let mounted = false;
-  const initGameState = {
-        playerTurn : -1,
-        board : [[' ',' ',' '],
-                 [' ',' ',' '],
-                 [' ',' ',' ']],
-
-    }
-
-function connect() {
-    const ws = new WebSocket('ws://localhost:8081');
-
-    ws.onopen = () => {
-        console.log('Connected to server');
-    };
-
-    ws.onclose = () => {
-        console.log('Disconnected. Reconnecting...');
-        setTimeout(connect, 1000);
-    };
-    return ws;
-}
 
 function App() {
-  const [gameState, setGameState] = useState(initGameState);
-  useEffect(() =>{
-    if(mounted == false){
-      mounted = true;
-      const ws = connect();
-      
-      //should update based on gamedata received
-      ws.onmessage = (event) => {
-          console.log("from server",JSON.parse(event.data));
-          setGameState(JSON.parse(event.data));
-      };
-      console.log(ws);
-    }
-    return
-  },[])
+  const [gameState, setGameState] = useState();
+  const ws = useRef(null);
+  const isRemoteUpdate = useRef(false); // track whether state change came from server
 
+  const gameController = new Controller(gameState, setGameState);
+
+  // connect once on mount
+  useEffect(() => {
+    let cancelled = false; // flag for intentional unmount
+    function connect() {
+      const socket = new WebSocket('ws://localhost:8081');
+      ws.current = socket;
+
+      socket.onopen = () => console.log('Connected to server');
+
+      //get remote update from server
+      socket.onmessage = (event) => {
+        const parsedData = JSON.parse(event.data);
+        console.log('from server', parsedData);
+        isRemoteUpdate.current = true;  // flag: this state change came from server
+        setGameState(parsedData);
+      };
+
+      socket.onclose = () => {
+        if(cancelled) return; //don't reconnect on unmount
+        console.log('Disconnected. Reconnecting...');
+        setTimeout(() => {
+          connect();
+        }, 1000);
+      };
+    }
+    connect()
+    return () => {
+      cancelled = true;
+      if (ws.current?.readyState === WebSocket.CONNECTING) {
+        ws.current.onopen = () => ws.current.close(); // wait until open, then close
+      } else {
+        ws.current?.close();
+      }
+    }; // cleanup on unmount
+  }, []);
+
+  // send state to server only when client changed it
+  useEffect(() => {
+    if (isRemoteUpdate.current) {
+      isRemoteUpdate.current = false;
+      return;
+    }
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      console.log('sending state', gameState);
+      ws.current.send(JSON.stringify(gameState));
+    }
+  }, [gameState]);
 
   return (
     <>
       <h1>Websocket Client</h1>
-      <button id='send' onClick={() =>console.log(gameState)}>Send</button>
-      <GameBoard gameState={gameState}/>
+      <GameBoard gameController={gameController} handleClick={gameController.handleClick} />
       <div id='messages'></div>
     </>
   )
