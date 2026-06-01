@@ -65,7 +65,7 @@ function App() {
 
   return (
     <>
-      <h1>{player? gameState.won? `${gameState.player == -1? 'X' : 'O'} won!` : `You are ${player == -1? 'X' : 'O'}'s` : "Waiting for Players..."}</h1>
+      <h1>{player? gameState.won? `${gameState.won==-1? 'X' : 'O'} won!` : `You are ${player == -1? 'X' : 'O'}'s` : "Waiting for Players..."}</h1>
       <GameBoard gameController={gameController} />
       <div id='messages'></div>
     </>

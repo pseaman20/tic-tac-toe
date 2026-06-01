@@ -16,6 +16,7 @@ export default class Controller {
     
     //update squares when clicked
     handleClick(row, column){
+        console.log(this.player, this.gameState.playerTurn)
         if(this.player == this.gameState.playerTurn){
             console.log(row,column);
             this.gameState.board[row][column] = this.letter
@@ -24,7 +25,7 @@ export default class Controller {
                 board : this.gameState.board,
             })
             if(this.getGameWon(this.gameState.board)){
-                this.setGameState({...this.gameState,won : this.player})
+                this.setGameState({...this.gameState, won : this.player})
             }
         }
     }

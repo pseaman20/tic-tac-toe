@@ -13,10 +13,14 @@ let gameState = {
 
 }
 
+let sendToAll = false;
+
 server.on('connection', (socket) => {
     //size should never be 0 on connection
-    const uid = server.clients.size == 1? -1 : 1;
+    const uid = server.clients.size <= 1? -1 : 1;
     if(server.clients.size >= 2){
+        sendToAll = true;
+        //if game started, send to everyone
         gameState.playerTurn = -1;
     }
     console.log('Client connected, sendingstate');
@@ -28,10 +32,12 @@ server.on('connection', (socket) => {
             console.log(`Received: ${data}`);
             gameState = JSON.parse(data)
             server.clients.forEach((client) => {
-                if (client !== socket && client.readyState === WebSocket.OPEN) {
+                if ((sendToAll || client !== socket) && client.readyState === WebSocket.OPEN) {
                     client.send(data, {binary: isBinary});
                 }
             });
+            //after game start message, go back to normal protocol
+            sendToAll = false;
         }
     });
 
