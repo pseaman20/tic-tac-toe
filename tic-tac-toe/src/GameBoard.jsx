@@ -13,7 +13,7 @@ export default function GameBoard({gameController}) {
                         return <tr key={r++}>
                                 {row.map((square) =>{
                                     const currC = c;
-                                    return <td className="square" onClick={() =>gameController.handleClick(currR, currC, 'x')} id={""+r+c}key={""+(r)+(c++)}>{square}</td>
+                                    return <td className={`square-${gameController.player == gameController.playerTurn? 'enabled' : 'disabled'}`} onClick={() =>gameController.handleClick(currR, currC)} id={""+r+c}key={""+(r)+(c++)}>{square}</td>
                                 }
                                 )}
                                </tr>

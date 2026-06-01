@@ -23,7 +23,15 @@
   border: 1px solid whitesmoke;
 }
 
-.square {
+.square-disabled {
+  border: 1px solid whitesmoke;
+  font-size:10rem;
+  width: 33%;
+  height: 33%;
+  transition: all 200ms;
+}
+
+.square-enabled {
   border: 1px solid whitesmoke;
   font-size:10rem;
   width: 33%;

@@ -6,11 +6,12 @@ import Controller from './controller';
 
 function App() {
   const [gameState, setGameState] = useState();
-  const [uid, setUid] = useState();
+  const [player, setPlayer] = useState();
   const ws = useRef(null);
   const isRemoteUpdate = useRef(false); // track whether state change came from server
-
-  const gameController = new Controller(gameState, setGameState);
+  
+  //hardcoded to be 3x3 right now
+  const gameController = new Controller(gameState, setGameState, player)
 
   // connect once on mount
   useEffect(() => {
@@ -25,7 +26,7 @@ function App() {
       socket.onmessage = (event) => {
         const parsedData = JSON.parse(event.data);
         //assign uid if sent
-        parsedData.uid? setUid(parsedData.uid) : null;
+        parsedData.player? setPlayer(parsedData.player) : 0;
         console.log('from server', parsedData);
         isRemoteUpdate.current = true;  // flag: this state change came from server
         setGameState(parsedData);
@@ -64,8 +65,8 @@ function App() {
 
   return (
     <>
-      <h1>{uid? uid : "Connecting..."}</h1>
-      <GameBoard gameController={gameController} handleClick={gameController.handleClick} />
+      <h1>{player? gameState.won? `${gameState.player == -1? 'X' : 'O'} won!` : `You are ${player == -1? 'X' : 'O'}'s` : "Waiting for Players..."}</h1>
+      <GameBoard gameController={gameController} />
       <div id='messages'></div>
     </>
   )

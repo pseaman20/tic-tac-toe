@@ -5,8 +5,6 @@ const server = new WebSocketServer({
   clientTracking: true,
 });
 
-const clients = new Set();
-
 let gameState = {
     playerTurn : 0,
     board : [[' ',' ',' '],
@@ -16,9 +14,14 @@ let gameState = {
 }
 
 server.on('connection', (socket) => {
-    const uid = server.clients.size;
+    //size should never be 0 on connection
+    const uid = server.clients.size == 1? -1 : 1;
+    if(server.clients.size >= 2){
+        gameState.playerTurn = -1;
+    }
     console.log('Client connected, sendingstate');
-    socket.send(JSON.stringify({...gameState,uid: uid}));
+    //update each client on new connection
+    socket.send(JSON.stringify({...gameState,player: uid}));
     socket.on('message', (data, isBinary) => {
         //only send out messages if data is changing
         if(JSON.stringify(data) !== JSON.stringify(gameState)){
@@ -33,7 +36,6 @@ server.on('connection', (socket) => {
     });
 
     socket.on('close', () => {
-        clients.delete(socket)
         console.log('Client disconnected');
     });
 
